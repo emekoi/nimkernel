@@ -4,6 +4,10 @@
 #  under the terms of the MIT license. See LICENSE for details.
 #
 
-type Pointer* {.packed.} = object
-  limit*: uint16
-  base*: uint32
+{.push stackTrace: off, profiler: off.}
+
+import descriptor/[gdt, idt]
+
+proc init*() =
+  gdt.init()
+  idt.init()

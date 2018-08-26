@@ -30,10 +30,12 @@ task "build-verbose", "build the kernel in verbose mode.":
   direShell CC, " -T linker.ld -o bin/main.bin -m32 -std=gnu99 -ffreestanding -fno-stack-protector -nostdinc -nostdlib src/nimcache/*.o"
 
 task "run", "run the kernel using QEMU.":
-  if not existsFile("bin/main.bin"): runTask("build")
+  if "bin/main.bin".needsRefresh("src"):
+    "build".runTask()
   if existsFile("qemu.log"): removeFile("qemu.log")
   direShell "qemu-system-i386 -kernel bin/main.bin -d cpu_reset -D ./qemu.log"
 
 task "run-stdout", "run the kernel using QEMU using stdout for logging.":
-  if not existsFile("bin/main.bin"): runTask("build")
+  if "bin/main.bin".needsRefresh("src"):
+    "build".runTask()
   direShell "qemu-system-i386 -kernel bin/main.bin -d cpu_reset -D /dev/stdout"

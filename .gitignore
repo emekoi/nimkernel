@@ -1,2 +1,8 @@
+nimcache/
+bin/
+
 nakefile
 qemu.log
+
+*.o
+*.c

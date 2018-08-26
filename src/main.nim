@@ -8,11 +8,7 @@ import kernel/boot
 import kernel/driver/vga
 
 proc main() =
-  # echo "this is a test"
-  # echo "of a kernel in nim"
-  for c in 'a' .. 'y':
-    putChar c
-    putchar '\n'
-  putChar 'z'
+  echo "this is a test"
+  echo "of a kernel in nim"
 
 main()

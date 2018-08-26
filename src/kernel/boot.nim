@@ -4,15 +4,14 @@
 #  under the terms of the MIT license. See LICENSE for details.
 #
 
-import dt
+{.push stackTrace: off, profiler: off.}
+
+import descriptor
 
 proc kernel_setup() =
-  # dt.init()
-  discard
+  descriptor.init()
 
-{.push exportc, stackTrace: off, profiler: off, asmNoStackFrame.}
-
-proc kernel_start() =
+proc kernel_start() {.exportc, asmNoStackFrame.} =
 
   # Declare constants for the multiboot header.
   asm ".set ALIGN,    1 << 0"           # align loaded modules on page boundaries

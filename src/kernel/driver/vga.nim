@@ -155,6 +155,23 @@ proc putChar*(c: char) =
 
   updateCursor()
 
+proc putDec*(num: SomeInteger) =
+  var
+    num = num
+    temp = num
+    factor = type(num)(1)
+  
+  while temp != 0:
+    temp = temp div 10
+    factor = factor * 10
+  
+  while factor > 1:
+    factor = factor div 10
+    putChar(chr((num div factor) + 48))
+    num = num mod factor
+  
+  putChar('\n')
+
 proc write*(data: string) =
   for c in cstring(data):
     putChar(c)
