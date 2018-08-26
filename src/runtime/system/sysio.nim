@@ -6,7 +6,7 @@
 
 import kernel/driver/vga
 
-{.push debugger: off.}
+{.push stackTrace: off, profiler: off.}
 
 proc echoBinSafe(args: openArray[string]) {.compilerProc.} =
   for data in args:

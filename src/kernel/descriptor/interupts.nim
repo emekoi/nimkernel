@@ -1,114 +1,135 @@
-template isrNoErrCode(err: Interrupt) =
-  asm """
-    cli
-    push 0
-    push %0
-    jmp isr_common_stub
-    : :"i"(err)
-  """
+import macros
 
-template isrErrCode(err: Interrupt) =
-  asm """
-    cli
-    push %0
-    jmp isr_common_stub
-    : :"i"(err)
-  """
+macro isrNoErrCode(err: string): typed =
+  nnkStmtList.newTree(
+    nnkAsmStmt.newTree(
+      newEmptyNode(),
+      newLit("cli")
+    ),
+    nnkAsmStmt.newTree(
+      newEmptyNode(),
+      newLit("push $00")
+    ),
+    nnkAsmStmt.newTree(
+      newEmptyNode(),
+      err
+    ),
+    nnkAsmStmt.newTree(
+      newEmptyNode(),
+      newLit("jmp isr_common_stub")
+    )
+  )
+
+macro isrErrCode(err: string): typed =
+  nnkStmtList.newTree(
+    nnkAsmStmt.newTree(
+      newEmptyNode(),
+      newLit("cli")
+    ),
+    nnkAsmStmt.newTree(
+      newEmptyNode(),
+      err
+    ),
+    nnkAsmStmt.newTree(
+      newEmptyNode(),
+      newLit("jmp isr_common_stub")
+    )
+  )
 
 {.push exportc, cdecl, asmNoStackFrame.}
 
 proc isr00() =
-  isrNoErrCode(Interrupt.DivByZero)
+  isrNoErrCode("push $00")
 
 proc isr01() =
-  isrNoErrCode(Interrupt.Debug)
+  isrNoErrCode("push $01")
 
 proc isr02() =
-  isrNoErrCode(Interrupt.NonMask)
+  isrNoErrCode("push $02")
 
 proc isr03() =
-  isrNoErrCode(Interrupt.Breakpoint)
+  isrNoErrCode("push $03")
 
 proc isr04() =
-  isrNoErrCode(Interrupt.IntoDetectedOverflow)
+  isrNoErrCode("push $04")
 
 proc isr05() =
-  isrNoErrCode(Interrupt.OutOfBounds)
+  isrNoErrCode("push $05")
 
 proc isr06() =
-  isrNoErrCode(Interrupt.InvalidOpcode)
+  isrNoErrCode("push $06")
 
 proc isr07() =
-  isrNoErrCode(Interrupt.NoCoprocessor)
+  isrNoErrCode("push $07")
 
 proc isr08() =
-  isrErrCode(Interrupt.DoubleFaut)
+  isrErrCode("push $08")
 
 proc isr09() =
-  isrNoErrCode(Interrupt.CoprocessorOverrun)
+  isrNoErrCode("push $09")
 
 proc isr10() =
-  isrErrCode(Interrupt.BasdTSS)
+  isrErrCode("push $10")
 
 proc isr11() =
-  isrErrCode(Interrupt.NoSegement)
+  isrErrCode("push $11")
 
 proc isr12() =
-  isrErrCode(Interrupt.StackFault)
+  isrErrCode("push $12")
 
 proc isr13() =
-  isrErrCode(Interrupt.GPFault)
+  isrErrCode("push $13")
 
 proc isr14() =
-  isrErrCode(Interrupt.PageFault)
+  isrErrCode("push $14")
 
 proc isr15() =
-  isrNoErrCode(Interrupt.UnknownInterrupt)
+  isrNoErrCode("push $15")
 
 proc isr16() =
-  isrNoErrCode(Interrupt.CoprocessorFault)
+  isrNoErrCode("push $16")
 
 proc isr17() =
-  isrNoErrCode(Interrupt.AlignmentCheck)
+  isrNoErrCode("push $17")
 
 proc isr18() =
-  isrNoErrCode(Interrupt.MachineCheck)
+  isrNoErrCode("push $18")
 
 proc isr19() =
-  isrNoErrCode(Interrupt.Reserved_19)
+  isrNoErrCode("push $19")
 
 proc isr20() =
-  isrNoErrCode(Interrupt.Reserved_20)
+  isrNoErrCode("push $20")
 
 proc isr22() =
-  isrNoErrCode(Interrupt.Reserved_22)
+  isrNoErrCode("push $22")
 
 proc isr23() =
-  isrNoErrCode(Interrupt.Reserved_23)
+  isrNoErrCode("push $23")
 
 proc isr24() =
-  isrNoErrCode(Interrupt.Reserved_24)
+  isrNoErrCode("push $24")
 
 proc isr25() =
-  isrNoErrCode(Interrupt.Reserved_25)
+  isrNoErrCode("push $25")
 
 proc isr26() =
-  isrNoErrCode(Interrupt.Reserved_26)
+  isrNoErrCode("push $26")
 
 proc isr27() =
-  isrNoErrCode(Interrupt.Reserved_27)
+  isrNoErrCode("push $27")
 
 proc isr28() =
-  isrNoErrCode(Interrupt.Reserved_28)
+  isrNoErrCode("push $28")
 
 proc isr29() =
-  isrNoErrCode(Interrupt.Reserved_29)
+  isrNoErrCode("push $29")
 
 proc isr30() =
-  isrNoErrCode(Interrupt.Reserved_30)
+  isrNoErrCode("push $30")
 
 proc isr31() =
-  isrNoErrCode(Interrupt.Reserved_31)
+  isrNoErrCode("push $31")
 
 proc isr_common_stub() =
   asm """

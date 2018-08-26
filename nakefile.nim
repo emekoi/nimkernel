@@ -7,9 +7,6 @@
 import nake
 import os
 
-const
-  CC = "i686-elf-gcc"
-
 task "clean", "removes build files.":
   removeDir("src/nimcache")
   removeDir("nimcache")
@@ -21,13 +18,11 @@ task "setup", "creates build directories.":
 
 task "build", "build the kernel.":
   runTask "setup"
-  direShell "nim c -d:release src/main.nim"
-  direShell CC, " -T linker.ld -o bin/main.bin -m32 -std=gnu99 -ffreestanding -fno-stack-protector -nostdinc -nostdlib src/nimcache/*.o"
+  direShell "nim c -d:release -o:bin/main.bin src/main.nim"
 
 task "build-verbose", "build the kernel in verbose mode.":
   runTask "setup"
-  direShell "nim c -d:release --verbosity:3 src/main.nim"
-  direShell CC, " -T linker.ld -o bin/main.bin -m32 -std=gnu99 -ffreestanding -fno-stack-protector -nostdinc -nostdlib src/nimcache/*.o"
+  direShell "nim c -d:release -o:bin/main.bin --verbosity:3 src/main.nim"
 
 task "run", "run the kernel using QEMU.":
   if "bin/main.bin".needsRefresh("src"):
