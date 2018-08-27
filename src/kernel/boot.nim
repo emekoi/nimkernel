@@ -46,7 +46,7 @@ proc kernel_start() {.exportc, asmNoStackFrame.} =
   asm ".section .bss"
   asm ".align 16"
   asm "stack_bottom:"
-  asm ".skip 16384" # 16 KiB
+  asm ".skip 0x8000" # 32 KiB
   asm "stack_top:"
 
   # The linker script specifies kernel_start as the entry point to the kernel and the
