@@ -6,7 +6,7 @@
 
 {.push stackTrace: off, profiler: off.}
 
-import descriptor/[gdt]
+import descriptor/[gdt, idt]
 
 proc init*() =
   gdt.init()

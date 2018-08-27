@@ -20,9 +20,9 @@ task "build", "build the kernel.":
   runTask "setup"
   direShell "nim c -d:release -o:bin/main.bin src/main.nim"
 
-task "build-verbose", "build the kernel in verbose mode.":
+task "build-debug", "build the kernel in debug mode.":
   runTask "setup"
-  direShell "nim c -d:release -o:bin/main.bin --verbosity:3 src/main.nim"
+  direShell "nim c -o:bin/main-debug.bin src/main.nim"
 
 task "run", "run the kernel using QEMU.":
   if "bin/main.bin".needsRefresh("src"):
@@ -30,7 +30,14 @@ task "run", "run the kernel using QEMU.":
   if existsFile("qemu.log"): removeFile("qemu.log")
   direShell "qemu-system-i386 -kernel bin/main.bin -d cpu_reset -D ./qemu.log"
 
-task "run-stdout", "run the kernel using QEMU using stdout for logging.":
-  if "bin/main.bin".needsRefresh("src"):
-    "build".runTask()
-  direShell "qemu-system-i386 -kernel bin/main.bin -d cpu_reset -D /dev/stdout"
+task "run-debug", "run the kernel using QEMU in debug mode.":
+  if "bin/main-debug.bin".needsRefresh("src"):
+    "build-debug".runTask()
+  if existsFile("qemu.log"): removeFile("qemu.log")
+  direShell "qemu-system-i386 -kernel bin/main-debug.bin -d cpu_reset -D ./qemu.log"
+
+task "run-gdb", "run the kernel using QEMU in debug mode.":
+  if "bin/main-debug.bin".needsRefresh("src"):
+    "build-debug".runTask()
+  if existsFile("qemu.log"): removeFile("qemu.log")
+  direShell "qemu-system-i386 -s -S -kernel bin/main-debug.bin -d cpu_reset -D ./qemu.log"

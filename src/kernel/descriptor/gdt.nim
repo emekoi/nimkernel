@@ -24,8 +24,8 @@ var
   gdtPointer: GDTPtr
 
 proc flush(gdt: ptr GDTPtr) {.asmNoStackFrame.} =
-  asm """lgdt %0
-    :"=r"(`gdt`)
+  asm """lgdt 4(%0)
+    : :"r"(`gdt`)
   """
 
   asm "mov $0x10, %ax"       # 0x10 is the offset in the GDT to our data segment

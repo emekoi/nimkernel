@@ -11,5 +11,6 @@ proc main() =
   echo "this is a test"
   echo "of a kernel in nim"
   # let d = "sd"
+  # asm "int $0x3"
 
 main()
