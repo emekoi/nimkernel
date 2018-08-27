@@ -28,22 +28,16 @@ proc flush(gdt: ptr GDTPtr) {.asmNoStackFrame.} =
     : :"m"(`gdt`)
   """
 
-  asm "mov $0x10, %ax"       # 0x10 is the offset in the GDT to our data segment
-  asm "mov %ds, %ax"         # Load all data segment selectors
-  asm "mov %es, %ax"
-  asm "mov %fs, %ax"
-  asm "mov %gs, %ax"
-  asm "mov %ss, %ax"
-
-  # asm "jmp $0x08, $flush_cs" # 0x08 is the offset to our code segment: Far jump!
-  # asm "ljmp $0x8, $flush_cs"
-
-  # asm "push $0x08"
-  # asm "mov $flush_cs, %eax"
-  # asm "push %eax"
-  asm "ljmp $0x8, $flush_cs"
+  asm "jmp $0x08, $flush_cs" # 0x08 is the offset to our code segment: Far jump!
+  
   asm "flush_cs:"
-  asm "  lret"
+  asm "  mov $0x10, %ax"       # 0x10 is the offset in the GDT to our data segment
+  asm "  mov %ds, %ax"         # Load all data segment selectors
+  asm "  mov %es, %ax"
+  asm "  mov %fs, %ax"
+  asm "  mov %gs, %ax"
+  asm "  mov %ss, %ax"
+  asm "  ret"
 
 
 proc setGate(idx: int32, base, limit: uint32, access, gran: uint8) =
