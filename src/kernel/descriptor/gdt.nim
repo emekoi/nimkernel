@@ -28,9 +28,9 @@ proc flush(gdt: ptr GDTPtr) {.asmNoStackFrame.} =
     : :"m"(`gdt`)
   """
 
-  asm "jmp $0x08, $flush_cs" # 0x08 is the offset to our code segment: Far jump!
+  asm "jmp $0x08, $reload_segments" # 0x08 is the offset to our code segment: Far jump!
   
-  asm "flush_cs:"
+  asm "reload_segments:"
   asm "  mov $0x10, %ax"       # 0x10 is the offset in the GDT to our data segment
   asm "  mov %ds, %ax"         # Load all data segment selectors
   asm "  mov %es, %ax"
