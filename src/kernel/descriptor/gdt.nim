@@ -52,7 +52,7 @@ proc setGate(idx: int32, base, limit: uint32, access, gran: uint8) =
   gdtEntries[idx].access = access
 
 proc init*() =
-  gdtPointer.limit = uint16(GDTEntry.sizeof() * (gdtEntries.len - 1))
+  gdtPointer.limit = uint16(GDTEntry.sizeof() * gdtEntries.len) - 1
   gdtPointer.base = cast[uint32](addr gdtEntries[0])
 
   setGate(0, 0x0, 0x00000000'u32, 0x00, 0x00)

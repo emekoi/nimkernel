@@ -6,7 +6,7 @@
 
 {.push stackTrace: off, profiler: off.}
 
-import ../driver/vga
+import ../driver/[vga, serial]
 
 type
   Interrupt {.pure, size: uint32.sizeof.} = enum
@@ -53,7 +53,7 @@ type
     limit: uint16
     base: uint32
   
-  Registers = object
+  Registers* = object
     ds: uint32
     edi, esi, ebp, esp, ebx, edx, ecx, eax: uint32
     intNo: Interrupt
@@ -67,7 +67,7 @@ var
 include interupts
 
 proc flush(idt: ptr IDTPtr) {.asmNoStackFrame.} =
-  asm """lidt 4%0
+  asm """lidt %0
     : :"m"(`idt`)
   """
   asm "ret"
@@ -82,7 +82,7 @@ proc setGate(idx: uint8, base: uint32, sel: uint16, flags: uint8) =
   idtEntries[idx].flags = flags # or 0x60
 
 proc init*() =
-  idtPointer.limit = uint16(IDTEntry.sizeof() * idtEntries.len - 1)
+  idtPointer.limit = uint16(IDTEntry.sizeof() * idtEntries.len) - 1
   idtPointer.base = cast[uint32](addr idtEntries[0])
 
   setGate(00, cast[uint32](isr00), 0x08, 0x8E)
@@ -119,8 +119,33 @@ proc init*() =
 
   flush(addr idtPointer)
 
-proc isrHandler(regs: Registers) {.exportc.} =
+proc writeISR(idx: int, isr: IDTEntry) =
+  COMPort.COM1.write "ISR "
+  COMPort.COM1.writeDec idx
+  COMPort.COM1.write "\tbaseLo:"
+  COMPort.COM1.writeHex isr.baseLo
+  COMPort.COM1.write "\tsel:"
+  COMPort.COM1.writeHex isr.sel
+  COMPort.COM1.write "\tzero:"
+  COMPort.COM1.writeHex isr.zero
+  COMPort.COM1.write "\tflags:"
+  COMPort.COM1.writeHex isr.flags
+  COMPort.COM1.write "\tbaseHi:"
+  COMPort.COM1.writeHex isr.baseHi
+
+proc dumpIDT*() =
+  var idt: ptr IDTPtr
+
+  asm """sidt %0
+    : :"m"(`idt`)
+  """
+  
+  # writeLine idt[] == idtPointer
+  writeHex cast[uint32](idt)
+  # writeHex idtPointer.base
+
+proc isrHandler*(regs: ptr Registers) {.exportc.} =
   vga.write("recieved interrupt: ")
-  vga.putDec(ord(regs.intNo))
+  vga.writeDec(ord(regs.intNo))
 
 {.pop.}

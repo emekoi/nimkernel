@@ -132,7 +132,10 @@ proc handleEscape(c: char) =
       for x in 0 .. (WIDTH - 1):
         terminalBuffer[terminalRow * WIDTH + x] = entry(' ', terminalColor)
     of '\t':
-      terminalColumn.inc 4
+      when defined(TAB_4):
+        terminalColumn.inc 4
+      else:
+        terminalColumn.inc 2
     else:
       discard
 
@@ -166,29 +169,38 @@ proc write*(data: string) =
   for c in cstring(data):
     putChar(c)
 
-proc writeLine*(data: string) =
+proc write*(data: bool) =
+  if data == false:
+    write("false")
+  else:
+    write("true")
+
+proc writeLine*(data: string | bool) =
   write(data)
   terminalRow.inc
   terminalColumn = 0
 
-proc putDec*[T: SomeInteger](num: T) =
+proc writeDec*[T: SomeInteger](num: T) =
   var
     num = num
     temp = num
     factor = T(1)
   
-  while temp != T(0):
-    temp = temp div T(10)
-    factor = factor * T(10)
-  
-  while factor > T(1):
-    factor = factor div T(10)
-    putChar(chr((num div factor) + T(48)))
-    num = num mod factor
+  if num == T(0):
+    putChar(chr(48))
+  else:
+    while temp != T(0):
+      temp = temp div T(10)
+      factor = factor * T(10)
+    
+    while factor > T(1):
+      factor = factor div T(10)
+      putChar(chr((num div factor) + T(48)))
+      num = num mod factor
   
   putChar('\n')
 
-proc putHex*[T: SomeUnsignedInt](num: T) =
+proc writeHex*[T: SomeUnsignedInt](num: T) =
   var
     num = num
     temp = num
@@ -196,16 +208,17 @@ proc putHex*[T: SomeUnsignedInt](num: T) =
   
   write("0x")
 
-  if num == T(0x01):
+  if num == T(0x00):
     putChar(HEXTABLE[0])
   else:
     while temp != T(0x00):
       temp = temp div T(0x10)
       factor = factor * T(0x10)
-    
+      
     while factor > T(0x01):
       factor = factor div T(0x10)
-      putChar(HEXTABLE[num div factor])
+      writeDec num div factor
+      #putChar(HEXTABLE[num div factor])
       num = num mod factor
   
   putChar('\n')

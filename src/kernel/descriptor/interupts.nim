@@ -135,26 +135,105 @@ proc isr31() =
   isrNoErrCode:
     asm "push $31"
 
-proc isrCommonStub() =
+# proc isrCommonStub*() =
+#   asm """
+#     pusha
+
+#     mov %ds, %ax
+#     push %eax
+
+#     mov $0x10, %ax
+#     mov %ax, %ds
+#     mov %ax, %es
+#     mov %ax, %fs
+#     mov %ax, %gs
+
+#     call isrHandler
+
+#     pop %eax
+#     mov %ax, %ds
+#     mov %ax, %es
+#     mov %ax, %fs
+#     mov %ax, %gs
+    
+#     popa
+#     add $0x08, %esp
+#     sti
+#     iret
+#   """
+
+
+# proc isrCommonStub*() =
+#   asm """
+#     pusha
+
+#     call isrHandler
+
+#     popa
+
+#     add $0x08, %esp
+#     iret
+#   """
+
+
+# proc isrCommonStub*() =
+#   asm """
+#     pusha
+
+#     push %ds
+#     push %es
+#     push %fs
+#     push %gs
+
+#     mov $0x10, %ax
+#     mov %ax, %ds
+#     mov %ax, %es
+#     mov %ax, %fs
+#     mov %ax, %gs
+
+#     mov %esp, %eax
+#     push %eax
+#     mov %eax, isrHandler
+#     call *%eax
+
+#     pop %eax
+#     pop %gs
+#     pop %fs
+#     pop %es
+#     pop %ds
+
+#     popa
+#     add $0x08, %esp
+
+#     iret
+#   """
+
+proc isrCommonStub*() =
   asm """
-    pusha
-    mov %ds, %ax
-    push %eax
-    mov $0x10, %ax
-    mov %ax, %ds
-    mov %ax, %es
-    mov %ax, %fs
-    mov %ax, %gs
-    call isrHandler
-    pop %eax
-    mov %ax, %ds
-    mov %ax, %es
-    mov %ax, %fs
-    mov %ax, %gs
-    popa
-    add $8, %esp
-    sti
-    iret
+  push %esp
+
+  add $0x08, %esp
+
+  push %eax
+  push %ebx
+  push %ecx
+  push %edx
+  push %ebp
+  push %esi
+  push %edi
+
+  call isrHandler
+
+  pop %edi
+  pop %esi
+  pop %ebp
+  pop %edx
+  pop %ecx
+  pop %ebx
+  pop %eax
+  pop %esp
+
+  ret
   """
 
 {.pop.}

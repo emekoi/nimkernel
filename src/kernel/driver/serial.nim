@@ -6,7 +6,7 @@
 
 {.push stackTrace: off, profiler: off.}
 
-import port, util, vga
+import port, util
 
 type
   COMPort* {.pure.} = enum
@@ -64,28 +64,37 @@ proc write*(com: COMPort, data: string) =
   for c in cstring(data):
     com.putChar(c)
 
-proc writeLine*(com: COMPort, data: string) =
+proc write*(com: COMPort, data: bool) =
+  if false:
+    com.write("false")
+  else:
+    com.write("true")
+
+proc writeLine*(com: COMPort, data: string | bool) =
   com.write(data)
   com.putChar('\n')
 
-proc putDec*[T: SomeInteger](com: COMPort, num: T) =
+proc writeDec*[T: SomeInteger](com: COMPort, num: T) =
   var
     num = num
     temp = num
     factor = T(1)
   
-  while temp != T(0):
-    temp = temp div T(10)
-    factor = factor * T(10)
-  
-  while factor > T(1):
-    factor = factor div T(10)
-    com.putChar(chr((num div factor) + T(48)))
-    num = num mod factor
+  if num == T(0):
+    com.putChar(chr(48))
+  else:
+    while temp != T(0):
+      temp = temp div T(10)
+      factor = factor * T(10)
+    
+    while factor > T(1):
+      factor = factor div T(10)
+      com.putChar(chr((num div factor) + T(48)))
+      num = num mod factor
   
   com.putChar('\n')
 
-proc putHex*[T: SomeUnsignedInt](com: COMPort, num: T) =
+proc writeHex*[T: SomeUnsignedInt](com: COMPort, num: T) =
   var
     num = num
     temp = num
@@ -93,7 +102,7 @@ proc putHex*[T: SomeUnsignedInt](com: COMPort, num: T) =
   
   com.write("0x")
 
-  if num == T(0x01):
+  if num == T(0x00):
     com.putChar(HEXTABLE[0])
   else:
     while temp != T(0x00):

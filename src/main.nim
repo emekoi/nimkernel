@@ -6,14 +6,16 @@
 
 import kernel/boot
 import kernel/driver/[vga, serial]
-
-proc isr00() {.importc.}
+import kernel/descriptor/idt
 
 proc main() =
   COMPort.COM1.init()
   echo "this is a test"
   echo "of a kernel in nim"
-  COMPort.COM1.putHex cast[uint32](isr00)
+  idt.dumpIDT()
+  # var reg: Registers
+  # reg.isrHandler()
+  idt.isrCommonStub()
   # asm "debug_point:"
   # asm "int $0x3"
 
