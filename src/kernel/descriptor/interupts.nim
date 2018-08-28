@@ -136,26 +136,25 @@ proc isr31() =
     asm "push $31"
 
 proc isrCommonStub() =
-  # asm """
-  #   pusha
-  #   mov %ds, %ax
-  #   push %eax
-  #   mov $0x10, %ax
-  #   mov %ax, %ds
-  #   mov %ax, %es
-  #   mov %ax, %fs
-  #   mov %ax, %gs
-  #   call isrHandler
-  #   pop %eax
-  #   mov %ax, %ds
-  #   mov %ax, %es
-  #   mov %ax, %fs
-  #   mov %ax, %gs
-  #   popa
-  #   add $8, %esp
-  #   sti
-  #   iret
-  # """
-  asm "iret"
+  asm """
+    pusha
+    mov %ds, %ax
+    push %eax
+    mov $0x10, %ax
+    mov %ax, %ds
+    mov %ax, %es
+    mov %ax, %fs
+    mov %ax, %gs
+    call isrHandler
+    pop %eax
+    mov %ax, %ds
+    mov %ax, %es
+    mov %ax, %fs
+    mov %ax, %gs
+    popa
+    add $8, %esp
+    sti
+    iret
+  """
 
 {.pop.}

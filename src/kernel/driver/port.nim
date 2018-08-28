@@ -7,11 +7,17 @@
 {.push stackTrace: off, profiler: off.}
 
 type
-  Port* {.pure, size: sizeof(uint16).} = enum
-    VGA_COMMAND = 0x3D4
-    VGA_DATA = 0x3D5
-
+  Port* = distinct uint16
   Command*  = distinct uint8
+
+converter toPort*[T: Ordinal](o: T): Port =
+  Port(ord(o))
+
+proc `-`*(lhs, rhs: Port): Port {.borrow.}
+proc `+`*(lhs, rhs: Port): Port {.borrow.}
+
+# converter toCommand*[T: Ordinal](o: T): Command =
+#   Command(ord(o))
 
 proc read*(port: Port): uint8 =
   asm """inb %1, %0

@@ -19,8 +19,6 @@ type
     limit: uint16
     base: uint32
 
-const METHOD_1 = false
-
 var
   gdtEntries: array[5, GDTEntry]
   gdtPointer: GDTPtr
@@ -30,23 +28,17 @@ proc flush(gdt: ptr GDTPtr) {.asmNoStackFrame.} =
     : :"m"(`gdt`)
   """
 
-  when METHOD_1:
-    asm "jmp $0x08, $reload_segments" # 0x08 is the offset to our code segment: Far jump!
-  else:
-    asm "push $0x08"
-    asm " push $reload_segments"
-    asm "lret"
+  # asm "jmp $0x08, $.reload_segments" # 0x08 is the offset to our code segment: Far jump!
+  asm "jmp .reload_segments" # maybe it's qemu but i don't need the far jump?
   
-  asm "reload_segments:"
-  asm "  mov $0x10, %ax"       # 0x10 is the offset in the GDT to our data segment
-  asm "  mov %ds, %ax"         # Load all data segment selectors
+  asm ".reload_segments:"
+  asm "  mov $0x10, %ax"     # 0x10 is the offset in the GDT to our data segment
+  asm "  mov %ds, %ax"       # Load all data segment selectors
   asm "  mov %es, %ax"
   asm "  mov %fs, %ax"
   asm "  mov %gs, %ax"
   asm "  mov %ss, %ax"
-  
-  when METHOD_1:
-    asm "  ret"
+  asm "  ret"
   
 proc setGate(idx: int32, base, limit: uint32, access, gran: uint8) =
   gdtEntries[idx].baseLow = uint16(base and 0xFFFF)

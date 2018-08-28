@@ -6,9 +6,13 @@
 
 {.push stackTrace: off, profiler: off.}
 
-import port
+import port, util
 
 type
+  VGAPort {.pure.} = enum
+    COMMAND = 0x3D4
+    DATA = 0x3D5
+
   VGACommand {.pure.} = enum
     HI = 0xE
     LO = 0xF
@@ -52,10 +56,11 @@ proc entry(uc: char, color: uint8): uint16 =
 
 proc moveCursor(x, y: int) =
   let pos = uint16(y * WIDTH + x)
-  Port.VGA_COMMAND.write(Command(VGACommand.HI))
-  Port.VGA_DATA.write(Command((pos shr 8) and 0x00FF))
-  Port.VGA_COMMAND.write(Command(VGACommand.LO))
-  Port.VGA_DATA.write(Command(pos and 0x00FF))
+  VGAPort.COMMAND.write Command(VGACommand.HI)
+  VGAPort.DATA.write Command((pos shr 8) and 0x00FF)
+  
+  VGAPort.COMMAND.write Command(VGACommand.LO)
+  VGAPort.DATA.write Command(pos and 0x00FF)
 
 proc updateCursor() =
   moveCursor(terminalColumn, terminalRow)
@@ -64,7 +69,7 @@ proc clear*() =
   for i in 0 .. (HEIGHT * WIDTH - 1):
     terminalBuffer[i] = entry(' ', terminalColor)
 
-proc init*() =
+proc init() =
   terminalRow = 0
   terminalColumn = 0
   terminalForeGround = Color.LIGHT_GREY
@@ -124,6 +129,8 @@ proc handleEscape(c: char) =
       terminalColumn = 0
     of '\r':
       terminalColumn = 0
+      for x in 0 .. (WIDTH - 1):
+        terminalBuffer[terminalRow * WIDTH + x] = entry(' ', terminalColor)
     of '\t':
       terminalColumn.inc 4
     else:
@@ -155,23 +162,6 @@ proc putChar*(c: char) =
 
   updateCursor()
 
-proc putDec*(num: SomeInteger) =
-  var
-    num = num
-    temp = num
-    factor = type(num)(1)
-  
-  while temp != 0:
-    temp = temp div 10
-    factor = factor * 10
-  
-  while factor > 1:
-    factor = factor div 10
-    putChar(chr((num div factor) + 48))
-    num = num mod factor
-  
-  putChar('\n')
-
 proc write*(data: string) =
   for c in cstring(data):
     putChar(c)
@@ -180,6 +170,45 @@ proc writeLine*(data: string) =
   write(data)
   terminalRow.inc
   terminalColumn = 0
+
+proc putDec*[T: SomeInteger](num: T) =
+  var
+    num = num
+    temp = num
+    factor = T(1)
+  
+  while temp != T(0):
+    temp = temp div T(10)
+    factor = factor * T(10)
+  
+  while factor > T(1):
+    factor = factor div T(10)
+    putChar(chr((num div factor) + T(48)))
+    num = num mod factor
+  
+  putChar('\n')
+
+proc putHex*[T: SomeUnsignedInt](num: T) =
+  var
+    num = num
+    temp = num
+    factor = T(0x01)
+  
+  write("0x")
+
+  if num == T(0x01):
+    putChar(HEXTABLE[0])
+  else:
+    while temp != T(0x00):
+      temp = temp div T(0x10)
+      factor = factor * T(0x10)
+    
+    while factor > T(0x01):
+      factor = factor div T(0x10)
+      putChar(HEXTABLE[num div factor])
+      num = num mod factor
+  
+  putChar('\n')
 
 init()
 

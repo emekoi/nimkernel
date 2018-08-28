@@ -67,7 +67,7 @@ var
 include interupts
 
 proc flush(idt: ptr IDTPtr) {.asmNoStackFrame.} =
-  asm """lidt %0
+  asm """lidt 4%0
     : :"m"(`idt`)
   """
   asm "ret"
@@ -120,8 +120,7 @@ proc init*() =
   flush(addr idtPointer)
 
 proc isrHandler(regs: Registers) {.exportc.} =
-  # vga.write("recieved interrupt: ")
-  # vga.putDec(ord(regs.intNo))
-  discard
+  vga.write("recieved interrupt: ")
+  vga.putDec(ord(regs.intNo))
 
 {.pop.}
