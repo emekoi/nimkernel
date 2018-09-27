@@ -1,12 +1,6 @@
 # kernel
 
-i wanted to see how hard it is to write a "kernel" in various languages.
-
-## the languages
-  * [c](c)
-  * [crystal](crystal)
-  * [nim](nim)
-  * [rust](rust)
+i wanted to see how hard it is to write a "kernel" in nim.
 
 ## building
 see [BUILD.md](BUILD.md) for that.
